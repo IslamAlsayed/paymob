@@ -1,8 +1,9 @@
 <?php
 
-namespace PayMob;
+namespace IslamAlsayed\PayMob;
 
 use Illuminate\Support\ServiceProvider;
+use IslamAlsayed\PayMob\Facades\PayMob;
 
 class PayMobServiceProvider extends ServiceProvider
 {

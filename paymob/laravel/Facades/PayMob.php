@@ -1,6 +1,6 @@
 <?php
 
-namespace PayMob\Facades;
+namespace IslamAlsayed\PayMob\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

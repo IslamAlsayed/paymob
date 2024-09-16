@@ -1,14 +1,14 @@
 <?php
 
-namespace PayMob;
+namespace IslamAlsayed\PayMob;
 
 class PayMob
 {
     public static function AuthenticationRequest()
     {
         $userInfo = [
-            'username' => env("PayMob_Username"),
-            'password' => env("PayMob_Password"),
+            'username' => env("PAYMOB_USERNAME"),
+            'password' => env("PAYMOB_PASSWORD"),
         ];
 
         $postData = json_encode($userInfo);

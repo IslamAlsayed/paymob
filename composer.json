@@ -12,8 +12,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "PayMob\\": "paymob/laravel",
-            "Paymob\\": "paymob"
+            "IslamAlsayed\\PayMob\\": "paymob/laravel",
+            "IslamAlsayed\\Paymob\\": "paymob"
         }
     },
     "require": {}

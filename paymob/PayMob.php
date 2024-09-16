@@ -1,6 +1,6 @@
 <?php
 
-namespace Paymob;
+namespace IslamAlsayed\Paymob;
 
 class PayMob
 {
@@ -10,9 +10,9 @@ class PayMob
 
     public function __construct(array $config)
     {
-        self::$username = $config['PayMob_User_Name'];
-        self::$password = $config['PayMob_Password'];
-        self::$integration_id = $config['PayMob_Integration_Id'];
+        self::$username = $config['PAYMOB_USERNAME'];
+        self::$password = $config['PAUMOB_PASSWORD'];
+        self::$integration_id = $config['PAYMOB_INTEGARTION_ID'];
     }
 
     public static function AuthenticationRequest()

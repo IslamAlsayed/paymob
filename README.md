@@ -6,164 +6,51 @@ paymob payment gateway https://paymob.com
 
 <p>Youtube tutorial https://www.youtube.com/watch?v=bRCZu9J8hWE&ab_channel=SamirHussein</p>
 
-## Installation
+### Usage Laravel
+
+## step 1
+
+install package
 
 ```bash
-composer require samir-hussein/paymob
+composer require islam-alsayed/paymob
 ```
 
-## Contents
+## step 2
 
-# php
-
-- [Authentication Request](#Authentication-Request)
-- [Order Registration](#Order-Registration)
-- [Payment Key Request](#Payment-Key-Request)
-- [Refund Transaction](#Refund-Transaction)
-- [Void Transaction](#Void-Transaction)
-
-## Usage In php native
-
-step 1 :
+add ServiceProvider in config/app.php
 
 ```php
-    require_once "vendor/autoload.php";
-    use Paymob\PayMob;
+// in providers
+IslamAlsayed\PayMob\PayMobServiceProvider::class,
+
+// in aliases
+'PayMob' => IslamAlsayed\PayMob\Facades\PayMob::class,
 ```
 
-step 2 :
+## step 3
 
-```php
-    $config = [
-      'PayMob_User_Name' => 'your_username',
-      'PayMob_Password' => 'your_password',
-      'PayMob_Integration_Id' => 'Integration_Id',
-    ];
-
-    $init = new PayMob($config);
-```
-
-# Authentication Request
-
-step 3 :
-
-```php
-    $auth = PayMob::AuthenticationRequest();
-```
-
-# Order Registration
-
-step 4 :
-
-```php
-    $order = PayMob::OrderRegistrationAPI([
-      'auth_token' => $auth->token, // from step 3
-      'amount_cents' => 150 * 100, //put your price
-      'currency' => 'EGP',
-      'delivery_needed' => false, // another option true
-      'merchant_order_id' => 6, //put order id from your database must be unique id
-      'items' => [[ // all items information
-          "name" => "ASC1515",
-          "amount_cents" => 150 * 100,
-          "description" => "Smart Watch",
-          "quantity" => "2"
-      ]]
-    ]);
-```
-
-# Payment Key Request
-
-step 5 :
-
-```php
-    $PaymentKey = PayMob::PaymentKeyRequest([
-      'auth_token' => $auth->token, // from step 3
-      'amount_cents' => 150 * 100,//put your price
-      'currency' => 'EGP',
-      'order_id' => $order->id, // from step 4
-      "billing_data" => [ // put your client information
-          "apartment" => "803",
-          "email" => "claudette09@exa.com",
-          "floor" => "42",
-          "first_name" => "Clifford",
-          "street" => "Ethan Land",
-          "building" => "8028",
-          "phone_number" => "+86(8)9135210487",
-          "shipping_method" => "PKG",
-          "postal_code" => "01898",
-          "city" => "Jaskolskiburgh",
-          "country" => "CR",
-          "last_name" => "Nicolas",
-          "state" => "Utah"
-      ]
-    ]);
-```
-
-finally
-
-```html
-<iframe
-  width="100%"
-  height="800"
-  src="https://accept.paymob.com/api/acceptance/iframes/{{your_frame_id_here}}?payment_token=<?= $PaymentKey->token // from step 5 ?>"
-></iframe>
-```
-
-# Refund Transaction
-
-```php
-    PayMob::refundTransaction(
-        $auth_token, // from step 3
-        $transaction_id,
-        $amount_cents // amount in cent 100 EGP = 100 * 100 cent
-    );
-```
-
-# Void Transaction
-
-```php
-    PayMob::voidTransaction(
-        $auth_token, // from step 3
-        $transaction_id,
-    );
-```
-
-### card information testing
-
-Card number : 4987654321098769\
-Cardholder Name : Test Account\
-Expiry Month : 12\
-Expiry year : 25\
-CVV : 123
-
-## Usage in laravel
-
-step 1 :
-in config/app.php
-
-```php
-//in providers
-PayMob\PayMobServiceProvider::class,
-//in aliases
-'PayMob' => PayMob\Facades\PayMob::class,
-```
-
-step 2 : in .env file
+in .env file add your data
+// you get it from your control panel
 
 ```bash
-PayMob_Username="Your_Username"
-PayMob_Password="Your_Password"
-PayMob_Integration_Id="Integration_Id"
-PayMob_HMAC="HMAC" // from your dashboard
+PAYMOB_USERNAME="Your_Username"
+PAYMOB_PASSWORD="Your_Password"
+PAYMOB_INTEGRATION_ID="Integration_Id"
+PAYMOB_HMAC="HMAC"
 ```
 
-step 3 : run command
+## step 4
+
+run command
 
 ```bash
-php artisan vendor:publish --provider="PayMob\PayMobServiceProvider"
+php artisan vendor:publish --provider="IslamAlsayed\PayMob\PayMobServiceProvider"
 ```
 
-step 4 : create controller like this
+## step 5
+
+create PayMobController like this
 
 ```php
 <?php
@@ -175,30 +62,32 @@ use Illuminate\Http\Request;
 
 class PayMobController extends Controller
 {
-    public function index()
+    public function pay($newOrder)
     {
         $auth = PayMob::AuthenticationRequest();
+
         $order = PayMob::OrderRegistrationAPI([
             'auth_token' => $auth->token,
-            'amount_cents' => 150 * 100, //put your price
+            'amount_cents' => $newOrder->total * 100, // put your price
             'currency' => 'EGP',
             'delivery_needed' => false, // another option true
-            'merchant_order_id' => 1000, //put order id from your database must be unique id
+            'merchant_order_id' => $newOrder->id, // put order id from your database must be unique id
             'items' => [] // all items information or leave it empty
         ]);
+
         $PaymentKey = PayMob::PaymentKeyRequest([
             'auth_token' => $auth->token,
-            'amount_cents' => 150 * 100, //put your price
+            'amount_cents' => $newOrder->total * 100, // put your price
             'currency' => 'EGP',
             'order_id' => $order->id,
             "billing_data" => [ // put your client information
                 "apartment" => "803",
-                "email" => "claudette09@exa.com",
+                "email" => $newOrder->customer->email,
                 "floor" => "42",
-                "first_name" => "Clifford",
+                "first_name" => $newOrder->customer->name,
                 "street" => "Ethan Land",
                 "building" => "8028",
-                "phone_number" => "+86(8)9135210487",
+                "phone_number" => $newOrder->customer->phone,
                 "shipping_method" => "PKG",
                 "postal_code" => "01898",
                 "city" => "Jaskolskiburgh",
@@ -208,12 +97,68 @@ class PayMobController extends Controller
             ]
         ]);
 
-        return view('paymob')->with(['token' => $PaymentKey->token]);
+        return $PaymentKey->token;
+    }
+}
+
+public function checkout_processed(Request $request)
+{
+    $request_hmac = $request->hmac;
+    $calc_hmac = PayMob::calcHMAC($request);
+
+    if ($request_hmac == $calc_hmac) {
+        $order_id = $request->obj['order']['merchant_order_id'];
+        $amount_cents = $request->obj['amount_cents'];
+        $transaction_id = $request->obj['id'];
+
+        $order = Order::findOrFail($order_id);
+
+        if ($request->obj['success'] == true && ($order->total * 100) == $amount_cents) {
+            $order->update([
+                'payment_type' => 'online',
+                'payment_status' => 'paid',
+                'transaction_id' => $transaction_id
+            ]);
+
+            Mail::to($order->customer->email)->send(new MailOrder($order));
+        } else {
+            $order->update([
+                'payment_type' => 'online',
+                'payment_status' => 'unpaid',
+                'transaction_id' => $transaction_id
+            ]);
+        }
     }
 }
 ```
 
-step 5 : create view paymob.blade.php and use your iframe like this
+## step 6
+
+create OrderController like this
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    public function store(Request $request)
+    {
+        $order = Order::create($request->all());
+        $PaymentKey = PayMobController::pay($order);
+        return view('paymob_iframe')->with(['token' => $PaymentKey]);
+    }
+}
+```
+
+## step 7
+
+create View paymob.blade.php and use your iframe like this
+// you get it from your control panel
 
 ```html
 <iframe
@@ -224,33 +169,78 @@ step 5 : create view paymob.blade.php and use your iframe like this
 </iframe>
 ```
 
-step 6 : update your database after payment is done
+## step 8
+
+create Routes like this
+
+in api.php
 
 ```php
-Route::post('/checkout/processed',function(Request $request){
-    $request_hmac = $request->hmac;
-    $calc_hmac = PayMob::calcHMAC($request);
+<?php
 
-    if ($request_hmac == $calc_hmac) {
-        $order_id = $request->obj['order']['merchant_order_id'];
-        $amount_cents = $request->obj['amount_cents'];
-        $transaction_id = $request->obj['id'];
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PayMobController;
 
-        $order = Order::find($order_id);
+Route::post('checkout/processed', [PayMobController::class, 'checkout_processed']);
+```
 
-        if ($request->obj['success'] == true && ($order->total_price * 100) == $amount_cents) {
-            $order->update([
-                'payment_status' => 'finished',
-                'transaction_id' => $transaction_id
-            ]);
-        } else {
-            $order->update([
-                'payment_status' => "failed",
-                'transaction_id' => $transaction_id
-            ]);
-        }
-    }
+in web.php
+
+```php
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
+
+Route::get('/', function () {
+    return view('checkout');
 });
+
+Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
+
+Route::get('/checkout/response', function (Request $request) {
+    if ($request->success == false) {
+        return view('pay_failed');
+    }
+
+    return view('pay_success');
+});
+```
+
+## step 9
+
+create View checkout.blade.php
+
+```html
+<form action="{{ route('checkout') }}" method="POST">
+  @csrf
+  <button>Go to Checkout</button>
+</form>
+```
+
+## step 10
+
+create View pay_failed.blade.php
+
+```html
+<body>
+  <h2>Payment Failed</h2>
+  <p>
+    Unfortunately, your payment could not be processed. Please try again later.
+  </p>
+</body>
+```
+
+## step 11
+
+create View pay_success.blade.php
+
+```html
+<body>
+  <h2>Payment Successful!</h2>
+  <p>Your payment has been successfully processed. Thank you!</p>
+</body>
 ```
 
 # Refund Transaction
