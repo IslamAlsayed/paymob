@@ -1,0 +1,20 @@
+{
+    "name": "islam-alsayed/paymob",
+    "description": "paymob payment gateway",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Islaml Alsayed Saied",
+            "email": "eslamalsayed8133@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "PayMob\\": "paymob/laravel",
+            "Paymob\\": "paymob"
+        }
+    },
+    "require": {}
+}
