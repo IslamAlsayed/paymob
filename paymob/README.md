@@ -57,8 +57,8 @@ create PayMobController like this
 
 namespace App\Http\Controllers;
 
-use PayMob\Facades\PayMob;
 use Illuminate\Http\Request;
+use IslamAlsayed\PayMob\PayMob;
 
 class PayMobController extends Controller
 {
@@ -162,9 +162,9 @@ create View paymob.blade.php and use your iframe like this
 
 ```html
 <iframe
-  width="100%"
-  height="800"
-  src="https://accept.paymob.com/api/acceptance/iframes/your_iframe_id?payment_token={{$token}}"
+    width="100%"
+    height="800"
+    src="https://accept.paymob.com/api/acceptance/iframes/your_iframe_id?payment_token={{$token}}"
 >
 </iframe>
 ```
@@ -214,8 +214,8 @@ create View checkout.blade.php
 
 ```html
 <form action="{{ route('checkout') }}" method="POST">
-  @csrf
-  <button>Go to Checkout</button>
+    @csrf
+    <button>Go to Checkout</button>
 </form>
 ```
 
@@ -225,10 +225,11 @@ create View pay_failed.blade.php
 
 ```html
 <body>
-  <h2>Payment Failed</h2>
-  <p>
-    Unfortunately, your payment could not be processed. Please try again later.
-  </p>
+    <h2>Payment Failed</h2>
+    <p>
+        Unfortunately, your payment could not be processed. Please try again
+        later.
+    </p>
 </body>
 ```
 
@@ -238,8 +239,8 @@ create View pay_success.blade.php
 
 ```html
 <body>
-  <h2>Payment Successful!</h2>
-  <p>Your payment has been successfully processed. Thank you!</p>
+    <h2>Payment Successful!</h2>
+    <p>Your payment has been successfully processed. Thank you!</p>
 </body>
 ```
 
