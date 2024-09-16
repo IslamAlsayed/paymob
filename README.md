@@ -4,8 +4,6 @@ paymob payment gateway https://paymob.com
 
 <p>paymob payment gateway API documentation https://docs.paymob.com/docs/accept-standard-redirect</p>
 
-<p>Youtube tutorial https://www.youtube.com/watch?v=bRCZu9J8hWE&ab_channel=SamirHussein</p>
-
 ### Usage Laravel
 
 ## step 1
@@ -268,3 +266,5 @@ Route::post('/void', function () {
     );
 });
 ```
+If you have any problems, contact me:
+eslamalsayed8133@gmail.com
