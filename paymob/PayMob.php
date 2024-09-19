@@ -8,11 +8,11 @@ class PayMob
     private static $password;
     private static $integration_id;
 
-    public function __construct(array $config)
+    public function __construct()
     {
-        self::$username = $config['PAYMOB_USERNAME'];
-        self::$password = $config['PAUMOB_PASSWORD'];
-        self::$integration_id = $config['PAYMOB_INTEGARTION_ID'];
+        self::$username = env('PAYMOB_USERNAME');
+        self::$password = env('PAUMOB_PASSWORD');
+        self::$integration_id = env('PAYMOB_INTEGRATION_ID');
     }
 
     public static function AuthenticationRequest()
