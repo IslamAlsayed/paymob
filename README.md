@@ -63,7 +63,8 @@ use App\Traits\SendSmsAndEmail;
 class PayMobController extends Controller
 {
     use SendSmsAndEmail;
-    public function pay($newOrder)
+
+    public static function pay($newOrder)
     {
         $auth = PayMob::AuthenticationRequest();
 
