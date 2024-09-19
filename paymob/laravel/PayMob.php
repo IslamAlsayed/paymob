@@ -53,7 +53,7 @@ class PayMob
     public static function PaymentKeyRequest($requestData)
     {
         $requestData['expiration'] = 3600;
-        $requestData['integration_id'] = env("PayMob_Integration_Id");
+        $requestData['integration_id'] = env("PAYMOB_INTEGRATION_ID");
         $postData = json_encode($requestData);
         $ch = curl_init();
 
