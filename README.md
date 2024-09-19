@@ -55,79 +55,83 @@ create PayMobController like this
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use IslamAlsayed\PayMob\PayMob;
+use App\Traits\SendSmsAndEmail;
 
 class PayMobController extends Controller
 {
+    use SendSmsAndEmail;
     public function pay($newOrder)
     {
         $auth = PayMob::AuthenticationRequest();
 
         $order = PayMob::OrderRegistrationAPI([
             'auth_token' => $auth->token,
-            'amount_cents' => $newOrder->total * 100, // put your price
+            'amount_cents' => $newOrder->total * 100,           // put your price
             'currency' => 'EGP',
-            'delivery_needed' => false, // another option true
-            'merchant_order_id' => $newOrder->id, // put order id from your database must be unique id
-            'items' => [] // all items information or leave it empty
+            'delivery_needed' => false,                         // another option true
+            'merchant_order_id' => $newOrder->id,               // put order id from your database must be unique id
+            'items' => []                                       // all items information or leave it empty
         ]);
 
         $PaymentKey = PayMob::PaymentKeyRequest([
             'auth_token' => $auth->token,
-            'amount_cents' => $newOrder->total * 100, // put your price
-            'currency' => 'EGP',
+            'amount_cents' => $newOrder->total * 100,           // put your price
+            'currency' => 'EGP',                                // fake
             'order_id' => $order->id,
-            "billing_data" => [ // put your client information
-                "apartment" => "803",
+            "billing_data" => [                                 // put your client information
+                "apartment" => "803",                           // fake
                 "email" => $newOrder->customer->email,
-                "floor" => "42",
+                "floor" => "42",                                // fake
                 "first_name" => $newOrder->customer->name,
-                "street" => "Ethan Land",
-                "building" => "8028",
+                "street" => "Ethan Land",                       // fake
+                "building" => "8028",                           // fake
                 "phone_number" => $newOrder->customer->phone,
-                "shipping_method" => "PKG",
-                "postal_code" => "01898",
-                "city" => "Jaskolskiburgh",
-                "country" => "CR",
-                "last_name" => "Nicolas",
-                "state" => "Utah"
+                "shipping_method" => "PKG",                     // fake
+                "postal_code" => "01898",                       // fake
+                "city" => "Jaskolskiburgh",                     // fake
+                "country" => "CR",                              // fake
+                "last_name" => "Nicolas",                       // fake
+                "state" => "Utah"                               // fake
             ]
         ]);
 
         return $PaymentKey->token;
     }
-}
 
-public function checkout_processed(Request $request)
-{
-    $request_hmac = $request->hmac;
-    $calc_hmac = PayMob::calcHMAC($request);
+    public function checkout_processed(Request $request)
+    {
+        $request_hmac = $request->hmac;
+        $calc_hmac = PayMob::calcHMAC($request);
 
-    if ($request_hmac == $calc_hmac) {
-        $order_id = $request->obj['order']['merchant_order_id'];
-        $amount_cents = $request->obj['amount_cents'];
-        $transaction_id = $request->obj['id'];
+        if ($request_hmac == $calc_hmac) {
+            $order_id = $request->obj['order']['merchant_order_id'];
+            $amount_cents = $request->obj['amount_cents'];
+            $transaction_id = $request->obj['id'];
 
-        $order = Order::findOrFail($order_id);
+            $order = Order::findOrFail($order_id);
 
-        if ($request->obj['success'] == true && ($order->total * 100) == $amount_cents) {
-            $order->update([
-                'payment_type' => 'online',
-                'payment_status' => 'paid',
-                'transaction_id' => $transaction_id
-            ]);
+            if ($request->obj['success'] == true && ($order->total * 100) == $amount_cents) {
+                $order->update([
+                    'payment_type' => 'online',
+                    'payment_status' => 'paid',
+                    'transaction_id' => $transaction_id
+                ]);
 
-            Mail::to($order->customer->email)->send(new MailOrder($order));
-        } else {
-            $order->update([
-                'payment_type' => 'online',
-                'payment_status' => 'unpaid',
-                'transaction_id' => $transaction_id
-            ]);
+                $this->SendSmsAndEmail($order);
+            } else {
+                $order->update([
+                    'payment_type' => 'online',
+                    'payment_status' => 'unpaid',
+                    'transaction_id' => $transaction_id
+                ]);
+            }
         }
     }
 }
+
 ```
 
 ## step 6
